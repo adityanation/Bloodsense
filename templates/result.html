@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodSense - Report Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-600">Blood Report Dashboard</h1>
+            <p class="text-gray-600 mt-2">Report generated on {{ datetime.now().strftime('%B %d, %Y') }}</p>
+        </div>
+
+        <!-- Patient Profile Card -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <div class="flex items-center mb-4">
+                <svg class="w-6 h-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <h2 class="text-2xl font-semibold text-gray-800">Patient Profile</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Basic Info -->
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <span class="text-gray-600 w-24">Name:</span>
+                        <span class="font-medium">{{ user_data.name }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-gray-600 w-24">Age:</span>
+                        <span class="font-medium">{{ user_data.age }} years</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-gray-600 w-24">Gender:</span>
+                        <span class="font-medium">{{ user_data.gender }}</span>
+                    </div>
+                </div>
+                
+                <!-- Physical Stats -->
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <span class="text-gray-600 w-24">Height:</span>
+                        <span class="font-medium">{{ user_data.height }} cm</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-gray-600 w-24">Weight:</span>
+                        <span class="font-medium">{{ user_data.weight }} kg</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-gray-600 w-24">BMI:</span>
+                        <span class="font-medium">{{ (user_data.weight|float / ((user_data.height|float/100) ** 2))|round(1) }}</span>
+                    </div>
+                </div>
+                
+                <!-- Lifestyle -->
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <span class="text-gray-600 w-24">Activity:</span>
+                        <span class="font-medium">{{ user_data.activity }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-gray-600 w-24">Diet:</span>
+                        <span class="font-medium">{{ user_data.diet }}</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        {% if user_data.smoke != 'no' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Smoker
+                        </span>
+                        {% endif %}
+                        {% if user_data.drink != 'no' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Alcohol
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biomarker Results -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Biomarker Results</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                {% for biomarker in biomarkers %}
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">{{ biomarker.name }}</h3>
+                            <p class="text-3xl font-bold mt-2">
+                                {{ biomarker.value }} <span class="text-sm text-gray-600">{{ biomarker.unit }}</span>
+                            </p>
+                        </div>
+                        {% if biomarker.status == 'normal' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Normal
+                        </span>
+                        {% elif biomarker.status == 'moderate' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Moderate
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Critical
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Reference Range: {{ biomarker.reference_range }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Critical Action Recommendations -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Action Recommendations</h2>
+            {% set critical_markers = biomarkers|selectattr('status', 'equalto', 'critical')|list %}
+            {% if critical_markers %}
+            <div class="grid md:grid-cols-2 gap-6">
+                {% for marker in critical_markers %}
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">{{ marker.name }}</h3>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Critical
+                        </span>
+                    </div>
+                    
+                    <!-- Nutrition Recommendation -->
+                    <div class="mb-4">
+                        <div class="flex items-center text-green-600 mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+                            </svg>
+                            <span class="font-medium">Nutrition</span>
+                        </div>
+                        <p class="text-gray-600 ml-7">{{ marker.nutrition_recommendation }}</p>
+                    </div>
+                    
+                    <!-- Fitness Recommendation -->
+                    <div>
+                        <div class="flex items-center text-blue-600 mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            <span class="font-medium">Fitness</span>
+                        </div>
+                        <p class="text-gray-600 ml-7">{{ marker.fitness_recommendation }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <div class="flex items-center justify-center text-green-600 mb-2">
+                    <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-medium text-gray-800">No Actions Recommended</h3>
+                <p class="text-gray-600 mt-2">All your biomarkers are within normal or moderate ranges. Keep up the good work!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Download Report Button -->
+        <div class="text-center">
+            <a href="{{ url_for('download_report', path=pdf_path) }}" 
+               class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition duration-300 shadow-lg hover:shadow-xl">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Download Detailed Report (PDF)
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

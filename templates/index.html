@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodSense - Upload Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-blue-600 mb-2">BloodSense</h1>
+                <p class="text-gray-600">Biomarker Analyzer & Nutritional Advisor</p>
+            </div>
+
+            <!-- Upload Form -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-semibold mb-4">Upload Your Blood Report</h2>
+
+                <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                </div>
+
+                <form id="upload-form" class="space-y-4">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="file">
+                            Select your report file (PDF, PNG, or JPG)
+                        </label>
+                        <input 
+                            type="file" 
+                            name="file" 
+                            id="file"
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-blue-50 file:text-blue-700
+                                hover:file:bg-blue-100"
+                            required
+                        >
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Upload & Continue
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Features -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-semibold mb-2">Smart Analysis</h3>
+                    <p class="text-gray-600">Advanced OCR technology to extract data from your reports</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-semibold mb-2">Personalized Advice</h3>
+                    <p class="text-gray-600">AI-powered health recommendations based on your profile</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-semibold mb-2">Comprehensive Report</h3>
+                    <p class="text-gray-600">Detailed PDF report with actionable insights</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h3 class="text-lg font-semibold mb-2">Secure & Private</h3>
+                    <p class="text-gray-600">Your health data is processed securely and not stored</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    const errorDiv = document.getElementById('error-message');
+                    errorDiv.textContent = data.error;
+                    errorDiv.classList.remove('hidden');
+                } else if (data.file_path) {
+                    window.location.href = `/form?file_path=${encodeURIComponent(data.file_path)}`;
+                }
+            } catch (error) {
+                const errorDiv = document.getElementById('error-message');
+                errorDiv.textContent = 'An error occurred during upload. Please try again.';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html> 
