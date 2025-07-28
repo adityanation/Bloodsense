@@ -90,4 +90,4 @@ bloodsense/
 - SSL encryption in transit
 - API keys and credentials are stored securely in environment variables
 
-Contact-adityasinha
+Contact-adityasinhasinha
