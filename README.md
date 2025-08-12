@@ -3,8 +3,6 @@
 A Flask web application that analyzes blood test reports and provides personalized health advice using OCR and AI.
 
 ## Features
-
-- Upload blood test reports (PDF/PNG/JPG)
 - Extract text using OCR (pytesseract)
 - Collect user health profile
 - Generate personalized health advice using GPT-4
