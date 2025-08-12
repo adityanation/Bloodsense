@@ -88,6 +88,5 @@ bloodsense/
 - Files are processed in memory and deleted after use
 - No health data is stored permanently
 - SSL encryption in transit
-- API keys and credentials are stored securely in environment variables
 
 Contact-adityasinhasinha06841@gmail.com for queries.
